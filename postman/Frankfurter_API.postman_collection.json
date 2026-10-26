@@ -1,0 +1,301 @@
+{
+  "info": {
+    "_postman_id": "7f8b9e1a-4d2c-4e3b-9a8f-5c6d7e8f9a0b",
+    "name": "Frankfurter Currency API - Senac Project",
+    "description": "Collection do Postman completa para testes e validação da API Frankfurter (dados oficiais do Banco Central Europeu). Cobre listagem de moedas, conversão mais recente, parâmetros dinâmicos e séries históricas.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "https://api.frankfurter.app",
+      "type": "string"
+    },
+    {
+      "key": "baseCurrency",
+      "value": "USD",
+      "type": "string"
+    },
+    {
+      "key": "targetCurrency",
+      "value": "BRL",
+      "type": "string"
+    }
+  ],
+  "item": [
+    {
+      "name": "1. Listar Moedas Suportadas",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{baseUrl}}/currencies",
+          "host": ["{{baseUrl}}"],
+          "path": ["currencies"]
+        },
+        "description": "Retorna o dicionário com todas as moedas suportadas pelo Banco Central Europeu, mapeando código ISO (ex: USD) para nome por extenso."
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('Status code é 200 OK', function () {",
+              "    pm.response.to.have.status(200);",
+              "});",
+              "pm.test('Resposta é um objeto JSON válido', function () {",
+              "    const jsonData = pm.response.json();",
+              "    pm.expect(jsonData).to.be.an('object');",
+              "    pm.expect(jsonData).to.have.property('USD');",
+              "    pm.expect(jsonData).to.have.property('BRL');",
+              "    pm.expect(jsonData).to.have.property('EUR');",
+              "});"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "2. Cotação Mais Recente (Base EUR Padrão)",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{baseUrl}}/latest",
+          "host": ["{{baseUrl}}"],
+          "path": ["latest"]
+        },
+        "description": "Obtém as cotações mais recentes de todas as moedas com a moeda base padrão (EUR)."
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('Status code é 200', function () {",
+              "    pm.response.to.have.status(200);",
+              "});",
+              "pm.test('Estrutura de resposta padrão', function () {",
+              "    const data = pm.response.json();",
+              "    pm.expect(data).to.have.property('amount');",
+              "    pm.expect(data).to.have.property('base', 'EUR');",
+              "    pm.expect(data).to.have.property('date');",
+              "    pm.expect(data).to.have.property('rates');",
+              "});"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "3. Cotação Recente com Par Específico (USD -> BRL)",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{baseUrl}}/latest?from={{baseCurrency}}&to={{targetCurrency}}",
+          "host": ["{{baseUrl}}"],
+          "path": ["latest"],
+          "query": [
+            {
+              "key": "from",
+              "value": "{{baseCurrency}}"
+            },
+            {
+              "key": "to",
+              "value": "{{targetCurrency}}"
+            }
+          ]
+        },
+        "description": "Consulta a taxa de câmbio unitária mais recente entre duas moedas específicas."
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('Status code é 200', function () {",
+              "    pm.response.to.have.status(200);",
+              "});",
+              "pm.test('Taxa de BRL presente e positiva', function () {",
+              "    const data = pm.response.json();",
+              "    pm.expect(data.base).to.eql('USD');",
+              "    pm.expect(data.rates).to.have.property('BRL');",
+              "    pm.expect(data.rates.BRL).to.be.above(0);",
+              "});"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "4. Conversão de Montante Específico (150 USD -> BRL)",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{baseUrl}}/latest?amount=150&from=USD&to=BRL",
+          "host": ["{{baseUrl}}"],
+          "path": ["latest"],
+          "query": [
+            {
+              "key": "amount",
+              "value": "150"
+            },
+            {
+              "key": "from",
+              "value": "USD"
+            },
+            {
+              "key": "to",
+              "value": "BRL"
+            }
+          ]
+        },
+        "description": "Calcula a conversão multiplicada pelo montante informado no parâmetro amount."
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('Status code é 200', function () {",
+              "    pm.response.to.have.status(200);",
+              "});",
+              "pm.test('Montante reflete 150', function () {",
+              "    const data = pm.response.json();",
+              "    pm.expect(data.amount).to.eql(150);",
+              "});"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "5. Múltiplos Símbolos Alvo (EUR -> USD, GBP, JPY, BRL)",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{baseUrl}}/latest?from=EUR&to=USD,GBP,JPY,BRL",
+          "host": ["{{baseUrl}}"],
+          "path": ["latest"],
+          "query": [
+            {
+              "key": "from",
+              "value": "EUR"
+            },
+            {
+              "key": "to",
+              "value": "USD,GBP,JPY,BRL"
+            }
+          ]
+        },
+        "description": "Consulta cotações simultâneas para múltiplos alvos separados por vírgula."
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('Status code é 200', function () {",
+              "    pm.response.to.have.status(200);",
+              "});",
+              "pm.test('Retornou os 4 símbolos solicitados', function () {",
+              "    const data = pm.response.json();",
+              "    pm.expect(Object.keys(data.rates)).to.include.members(['USD', 'GBP', 'JPY', 'BRL']);",
+              "});"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "6. Cotação Histórica em Data Específica (2024-01-15)",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{baseUrl}}/2024-01-15?from=USD&to=BRL",
+          "host": ["{{baseUrl}}"],
+          "path": ["2024-01-15"],
+          "query": [
+            {
+              "key": "from",
+              "value": "USD"
+            },
+            {
+              "key": "to",
+              "value": "BRL"
+            }
+          ]
+        },
+        "description": "Consulta a cotação oficial em uma data específica no passado."
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('Status code é 200', function () {",
+              "    pm.response.to.have.status(200);",
+              "});",
+              "pm.test('Data corresponde a data solicitada ou dia útil anterior', function () {",
+              "    const data = pm.response.json();",
+              "    pm.expect(data.date).to.be.a('string');",
+              "});"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "7. Série Histórica por Intervalo (Ex: 30 Dias)",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{baseUrl}}/2024-01-01..2024-01-31?from=USD&to=BRL",
+          "host": ["{{baseUrl}}"],
+          "path": ["2024-01-01..2024-01-31"],
+          "query": [
+            {
+              "key": "from",
+              "value": "USD"
+            },
+            {
+              "key": "to",
+              "value": "BRL"
+            }
+          ]
+        },
+        "description": "Consulta série temporal de cotações entre duas datas usando a sintaxe de intervalo duplo ponto (YYYY-MM-DD..YYYY-MM-DD)."
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('Status code é 200', function () {",
+              "    pm.response.to.have.status(200);",
+              "});",
+              "pm.test('Objeto rates contém dias com cotação', function () {",
+              "    const data = pm.response.json();",
+              "    pm.expect(data).to.have.property('start_date');",
+              "    pm.expect(data).to.have.property('end_date');",
+              "    pm.expect(Object.keys(data.rates).length).to.be.above(0);",
+              "});"
+            ]
+          }
+        }
+      ]
+    }
+  ]
+}
