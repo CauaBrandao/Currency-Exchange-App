@@ -53,6 +53,7 @@ export default function AnalyticsSection({
         data={historyData}
         fromCurrency={fromCurrency}
         toCurrency={toCurrency}
+        amount={amount}
         isLoading={isLoading}
       />
 
