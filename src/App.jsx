@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import './App.css';
 import Header from './components/Header/Header';
 import ConverterCard from './components/Converter/ConverterCard';
@@ -13,10 +13,15 @@ import { MOCK_POPULAR_PAIRS } from './data/mockData';
 import { AlertCircle, RefreshCw } from 'lucide-react';
 
 export default function App() {
-  // Persistência de tema via LocalStorage
+  // Persistência com LocalStorage (Card 11)
   const [isDark, setIsDark] = useLocalStorage('theme-dark', true);
+  const [recents, setRecents] = useLocalStorage('recent-conversions', []);
+  const [favorites, setFavorites] = useLocalStorage('favorite-pairs', [
+    { from: 'USD', to: 'BRL' },
+    { from: 'EUR', to: 'BRL' }
+  ]);
   
-  // Estados de formulário e filtros (Card 10)
+  // Estados de formulário e filtros
   const [fromCurrency, setFromCurrency] = useState('USD');
   const [toCurrency, setToCurrency] = useState('BRL');
   const [amount, setAmount] = useState(100);
@@ -26,6 +31,11 @@ export default function App() {
   const [maxRateFilter, setMaxRateFilter] = useState('');
   const [sortField, setSortField] = useState('date');
   const [sortOrder, setSortOrder] = useState('desc');
+
+  // Aplicar data-theme no elemento raiz HTML para consistência total de tema
+  useEffect(() => {
+    document.documentElement.setAttribute('data-theme', isDark ? 'dark' : 'light');
+  }, [isDark]);
 
   // Integração com API via Custom Hooks
   const { 
@@ -50,6 +60,25 @@ export default function App() {
     refetch: refetchHistory 
   } = useHistoricalRates(fromCurrency, toCurrency, timeframe);
 
+  // Registrar no histórico de conversões recentes quando uma conversão válida for calculada
+  useEffect(() => {
+    if (conversion && conversion.result > 0 && fromCurrency !== toCurrency) {
+      setRecents(prev => {
+        const item = {
+          from: fromCurrency,
+          to: toCurrency,
+          amount: conversion.amount,
+          result: conversion.result,
+          rate: conversion.rate,
+          date: new Date().toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })
+        };
+        // Evita duplicata contígua imediata
+        const filtered = prev.filter(r => !(r.from === item.from && r.to === item.to && r.amount === item.amount));
+        return [item, ...filtered].slice(0, 8);
+      });
+    }
+  }, [conversion.result, conversion.amount, fromCurrency, toCurrency, setRecents]);
+
   // Ações do Usuário
   const handleToggleTheme = () => setIsDark(prev => !prev);
 
@@ -68,6 +97,17 @@ export default function App() {
     setToCurrency(to);
   };
 
+  const handleToggleFavorite = (from, to) => {
+    setFavorites(prev => {
+      const exists = prev.some(f => f.from === from && f.to === to);
+      if (exists) {
+        return prev.filter(f => !(f.from === from && f.to === to));
+      } else {
+        return [...prev, { from, to }];
+      }
+    });
+  };
+
   const handleSort = (field) => {
     if (sortField === field) {
       setSortOrder(prev => prev === 'asc' ? 'desc' : 'asc');
@@ -83,7 +123,7 @@ export default function App() {
     setMaxRateFilter('');
   };
 
-  // Filtragem e Ordenação da Tabela (Card 10)
+  // Filtragem e Ordenação da Tabela
   const filteredHistory = useMemo(() => {
     if (!historyData || historyData.length === 0) return [];
 
@@ -92,13 +132,9 @@ export default function App() {
 
     return historyData
       .filter(item => {
-        // Filtro por data
         const matchesDate = !searchTerm.trim() || item.date.toLowerCase().includes(searchTerm.toLowerCase().trim());
-        // Filtro por taxa mínima
         const matchesMin = isNaN(minNum) || item.rate >= minNum;
-        // Filtro por taxa máxima
         const matchesMax = isNaN(maxNum) || item.rate <= maxNum;
-
         return matchesDate && matchesMin && matchesMax;
       })
       .sort((a, b) => {
@@ -110,7 +146,7 @@ export default function App() {
       });
   }, [historyData, searchTerm, minRateFilter, maxRateFilter, sortField, sortOrder]);
 
-  // Exportação CSV dos registros filtrados
+  // Exportação CSV
   const handleExportCsv = () => {
     exportHistoricalRatesToCsv({
       data: filteredHistory,
@@ -122,7 +158,7 @@ export default function App() {
 
   const apiStatusMessage = errorCurrencies || errorConversion 
     ? "API Offline (Modo Resiliente)" 
-    : "API Frankfurter Online";
+    : "API Frankfurter Conectada";
 
   return (
     <div className="app-container" data-theme={isDark ? 'dark' : 'light'}>
@@ -186,8 +222,11 @@ export default function App() {
             conversion={conversion}
             popularPairs={MOCK_POPULAR_PAIRS}
             onSelectPair={handleSelectPopularPair}
+            recents={recents}
+            favorites={favorites}
+            onToggleFavorite={handleToggleFavorite}
             isLoading={isLoadingConversion || isLoadingCurrencies}
-            subtitle="Dados Oficiais BCE (Card 10)"
+            subtitle="Cotações Oficiais BCE"
           />
 
           <AnalyticsSection 

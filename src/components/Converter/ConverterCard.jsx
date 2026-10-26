@@ -4,6 +4,7 @@ import AmountInput from './AmountInput';
 import CurrencySelect from './CurrencySelect';
 import ConversionResult from './ConversionResult';
 import PopularPairs from './PopularPairs';
+import RecentConversions from './RecentConversions';
 
 export default function ConverterCard({
   amount,
@@ -17,6 +18,9 @@ export default function ConverterCard({
   conversion,
   popularPairs,
   onSelectPair,
+  recents = [],
+  favorites = [],
+  onToggleFavorite,
   isLoading = false,
   subtitle = "Taxas de Câmbio"
 }) {
@@ -76,6 +80,15 @@ export default function ConverterCard({
       <PopularPairs 
         pairs={popularPairs} 
         onSelectPair={onSelectPair} 
+      />
+
+      <RecentConversions 
+        recents={recents}
+        favorites={favorites}
+        onSelectPair={onSelectPair}
+        onToggleFavorite={onToggleFavorite}
+        currentFrom={fromCurrency}
+        currentTo={toCurrency}
       />
     </div>
   );
