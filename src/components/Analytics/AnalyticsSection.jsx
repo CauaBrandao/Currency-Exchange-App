@@ -14,8 +14,14 @@ export default function AnalyticsSection({
   metrics,
   historyData,
   filteredHistoryData,
+  totalCount,
   searchTerm,
   onSearchChange,
+  minRateFilter,
+  onMinRateChange,
+  maxRateFilter,
+  onMaxRateChange,
+  onClearFilters,
   sortField,
   sortOrder,
   onSort,
@@ -59,11 +65,17 @@ export default function AnalyticsSection({
 
       <RatesTable 
         data={filteredHistoryData}
+        totalCount={totalCount || historyData.length}
         fromCurrency={fromCurrency}
         toCurrency={toCurrency}
         amount={amount}
         searchTerm={searchTerm}
         onSearchChange={onSearchChange}
+        minRateFilter={minRateFilter}
+        onMinRateChange={onMinRateChange}
+        maxRateFilter={maxRateFilter}
+        onMaxRateChange={onMaxRateChange}
+        onClearFilters={onClearFilters}
         sortField={sortField}
         sortOrder={sortOrder}
         onSort={onSort}

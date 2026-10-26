@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import './App.css';
 import Header from './components/Header/Header';
 import ConverterCard from './components/Converter/ConverterCard';
@@ -8,6 +8,7 @@ import { useCurrencies } from './hooks/useCurrencies';
 import { useExchangeRates } from './hooks/useExchangeRates';
 import { useHistoricalRates } from './hooks/useHistoricalRates';
 import { useLocalStorage } from './hooks/useLocalStorage';
+import { exportHistoricalRatesToCsv } from './utils/exportCsv';
 import { MOCK_POPULAR_PAIRS } from './data/mockData';
 import { AlertCircle, RefreshCw } from 'lucide-react';
 
@@ -15,16 +16,18 @@ export default function App() {
   // Persistência de tema via LocalStorage
   const [isDark, setIsDark] = useLocalStorage('theme-dark', true);
   
-  // Estados de formulário e filtros
+  // Estados de formulário e filtros (Card 10)
   const [fromCurrency, setFromCurrency] = useState('USD');
   const [toCurrency, setToCurrency] = useState('BRL');
   const [amount, setAmount] = useState(100);
   const [timeframe, setTimeframe] = useState('15D');
   const [searchTerm, setSearchTerm] = useState('');
+  const [minRateFilter, setMinRateFilter] = useState('');
+  const [maxRateFilter, setMaxRateFilter] = useState('');
   const [sortField, setSortField] = useState('date');
   const [sortOrder, setSortOrder] = useState('desc');
 
-  // Integração com API via Custom Hooks (Card 08)
+  // Integração com API via Custom Hooks
   const { 
     currencies, 
     isLoading: isLoadingCurrencies, 
@@ -74,16 +77,48 @@ export default function App() {
     }
   };
 
-  // Filtragem e Ordenação da Tabela
-  const filteredHistory = (historyData || [])
-    .filter(item => item.date.toLowerCase().includes(searchTerm.toLowerCase().trim()))
-    .sort((a, b) => {
-      if (sortField === 'date') {
-        return sortOrder === 'asc' ? a.date.localeCompare(b.date) : b.date.localeCompare(a.date);
-      } else {
-        return sortOrder === 'asc' ? a.rate - b.rate : b.rate - a.rate;
-      }
+  const handleClearFilters = () => {
+    setSearchTerm('');
+    setMinRateFilter('');
+    setMaxRateFilter('');
+  };
+
+  // Filtragem e Ordenação da Tabela (Card 10)
+  const filteredHistory = useMemo(() => {
+    if (!historyData || historyData.length === 0) return [];
+
+    const minNum = parseFloat(minRateFilter);
+    const maxNum = parseFloat(maxRateFilter);
+
+    return historyData
+      .filter(item => {
+        // Filtro por data
+        const matchesDate = !searchTerm.trim() || item.date.toLowerCase().includes(searchTerm.toLowerCase().trim());
+        // Filtro por taxa mínima
+        const matchesMin = isNaN(minNum) || item.rate >= minNum;
+        // Filtro por taxa máxima
+        const matchesMax = isNaN(maxNum) || item.rate <= maxNum;
+
+        return matchesDate && matchesMin && matchesMax;
+      })
+      .sort((a, b) => {
+        if (sortField === 'date') {
+          return sortOrder === 'asc' ? a.date.localeCompare(b.date) : b.date.localeCompare(a.date);
+        } else {
+          return sortOrder === 'asc' ? a.rate - b.rate : b.rate - a.rate;
+        }
+      });
+  }, [historyData, searchTerm, minRateFilter, maxRateFilter, sortField, sortOrder]);
+
+  // Exportação CSV dos registros filtrados
+  const handleExportCsv = () => {
+    exportHistoricalRatesToCsv({
+      data: filteredHistory,
+      fromCurrency,
+      toCurrency,
+      amount: typeof amount === 'number' && amount > 0 ? amount : 1
     });
+  };
 
   const apiStatusMessage = errorCurrencies || errorConversion 
     ? "API Offline (Modo Resiliente)" 
@@ -152,7 +187,7 @@ export default function App() {
             popularPairs={MOCK_POPULAR_PAIRS}
             onSelectPair={handleSelectPopularPair}
             isLoading={isLoadingConversion || isLoadingCurrencies}
-            subtitle="Dados Oficiais BCE (Card 08)"
+            subtitle="Dados Oficiais BCE (Card 10)"
           />
 
           <AnalyticsSection 
@@ -164,12 +199,18 @@ export default function App() {
             metrics={metrics}
             historyData={historyData}
             filteredHistoryData={filteredHistory}
+            totalCount={historyData ? historyData.length : 0}
             searchTerm={searchTerm}
             onSearchChange={(e) => setSearchTerm(e.target.value)}
+            minRateFilter={minRateFilter}
+            onMinRateChange={(e) => setMinRateFilter(e.target.value)}
+            maxRateFilter={maxRateFilter}
+            onMaxRateChange={(e) => setMaxRateFilter(e.target.value)}
+            onClearFilters={handleClearFilters}
             sortField={sortField}
             sortOrder={sortOrder}
             onSort={handleSort}
-            onExportCsv={() => alert(`Exportação CSV será ativada no Card 10 (${filteredHistory.length} registros).`)}
+            onExportCsv={handleExportCsv}
             isLoading={isLoadingHistory}
           />
         </div>

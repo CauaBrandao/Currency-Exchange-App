@@ -1,13 +1,20 @@
 import React, { useState } from 'react';
-import { Calendar, ArrowUpDown, Download, Search, ChevronLeft, ChevronRight, TrendingUp, TrendingDown } from 'lucide-react';
+import { Calendar, ArrowUpDown, Download, ChevronLeft, ChevronRight, TrendingUp, TrendingDown, FileSpreadsheet } from 'lucide-react';
+import TableFilters from './TableFilters';
 
 export default function RatesTable({ 
   data = [], 
+  totalCount = 0,
   fromCurrency, 
   toCurrency, 
   amount = 100, 
   searchTerm = '', 
   onSearchChange,
+  minRateFilter = '',
+  onMinRateChange,
+  maxRateFilter = '',
+  onMaxRateChange,
+  onClearFilters,
   sortField = 'date',
   sortOrder = 'desc',
   onSort,
@@ -30,55 +37,60 @@ export default function RatesTable({
     setCurrentPage(prev => Math.min(prev + 1, totalPages));
   };
 
-  // Identificar maior e menor taxa para badges sutis
   const rates = data.map(d => d.rate);
-  const minRate = Math.min(...rates);
-  const maxRate = Math.max(...rates);
+  const minRate = rates.length > 0 ? Math.min(...rates) : 0;
+  const maxRate = rates.length > 0 ? Math.max(...rates) : 0;
 
   return (
     <div>
-      <div className="table-controls">
-        <div className="search-input-wrapper">
-          <Search 
-            size={16} 
-            style={{ 
-              position: 'absolute', 
-              left: '0.75rem', 
-              top: '50%', 
-              transform: 'translateY(-50%)', 
-              color: 'var(--text-dim)' 
-            }} 
-          />
-          <input 
-            type="text" 
-            placeholder="Filtrar por data (ex: 2026-10)..." 
-            className="search-input"
-            value={searchTerm}
-            onChange={(e) => {
-              setCurrentPage(1); // Resetar para pagina 1 ao filtrar
-              onSearchChange && onSearchChange(e);
-            }}
-            aria-label="Filtrar registros por data"
-          />
-        </div>
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '1rem', flexWrap: 'wrap', gap: '0.75rem' }}>
+        <h3 style={{ fontSize: '1rem', fontWeight: 700, display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+          <FileSpreadsheet size={18} color="var(--primary)" />
+          Tabela Histórica de Cotações
+        </h3>
 
         <button 
           className="export-csv-btn" 
           onClick={onExportCsv}
           type="button"
           disabled={data.length === 0}
-          title="Exportar dados da tabela em formato CSV"
+          title="Exportar registros filtrados em CSV"
         >
           <Download size={16} />
-          Exportar CSV
+          Exportar CSV ({data.length})
         </button>
       </div>
+
+      {/* Componente de Filtros Avançados */}
+      <TableFilters 
+        searchTerm={searchTerm}
+        onSearchChange={(e) => {
+          setCurrentPage(1);
+          onSearchChange && onSearchChange(e);
+        }}
+        minRateFilter={minRateFilter}
+        onMinRateChange={(e) => {
+          setCurrentPage(1);
+          onMinRateChange && onMinRateChange(e);
+        }}
+        maxRateFilter={maxRateFilter}
+        onMaxRateChange={(e) => {
+          setCurrentPage(1);
+          onMaxRateChange && onMaxRateChange(e);
+        }}
+        onClearFilters={() => {
+          setCurrentPage(1);
+          onClearFilters && onClearFilters();
+        }}
+        totalRecords={totalCount}
+        filteredRecords={data.length}
+      />
 
       <div className="data-table-wrapper">
         <table className="data-table">
           <thead>
             <tr>
-              <th onClick={() => onSort && onSort('date')} title="Clique para ordenar por data">
+              <th onClick={() => onSort && onSort('date')} title="Clique para alternar ordenação por data">
                 Data <Calendar size={13} style={{ display: 'inline', verticalAlign: 'middle' }} />
                 {sortField === 'date' && (
                   <span style={{ fontSize: '0.7rem', marginLeft: '0.25rem', color: 'var(--primary)' }}>
@@ -87,7 +99,7 @@ export default function RatesTable({
                 )}
               </th>
               <th>Par Cambial</th>
-              <th onClick={() => onSort && onSort('rate')} title="Clique para ordenar por taxa">
+              <th onClick={() => onSort && onSort('rate')} title="Clique para alternar ordenação por taxa">
                 Taxa de Câmbio <ArrowUpDown size={13} style={{ display: 'inline', verticalAlign: 'middle' }} />
                 {sortField === 'rate' && (
                   <span style={{ fontSize: '0.7rem', marginLeft: '0.25rem', color: 'var(--primary)' }}>
@@ -111,16 +123,15 @@ export default function RatesTable({
             ) : data.length === 0 ? (
               <tr>
                 <td colSpan="5" style={{ textAlign: 'center', padding: '2.5rem', color: 'var(--text-muted)' }}>
-                  Nenhum registro histórico localizado para os critérios aplicados.
+                  Nenhum registro encontrado para os filtros selecionados.
                 </td>
               </tr>
             ) : (
               currentItems.map((row, idx) => {
-                // Comparar com linha anterior para mostrar tendência
                 const prevRow = currentItems[idx + 1];
                 const diff = prevRow ? row.rate - prevRow.rate : 0;
-                const isRateMax = row.rate === maxRate;
-                const isRateMin = row.rate === minRate;
+                const isRateMax = row.rate === maxRate && minRate !== maxRate;
+                const isRateMin = row.rate === minRate && minRate !== maxRate;
 
                 return (
                   <tr key={row.date}>
