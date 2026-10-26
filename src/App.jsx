@@ -7,27 +7,31 @@ import Footer from './components/Footer/Footer';
 import { 
   MOCK_CURRENCIES, 
   MOCK_POPULAR_PAIRS, 
-  MOCK_LATEST_CONVERSION, 
-  MOCK_HISTORICAL_DATA 
+  MOCK_CONVERSION_USD_BRL, 
+  MOCK_HISTORICAL_SERIES 
 } from './data/mockData';
 
 export default function App() {
+  // Propriedades estaticas demonstrando o fluxo unidirecional de dados (Card 05)
   const isDark = true;
-  const fromCurrency = "USD";
-  const toCurrency = "BRL";
-  const amount = 100;
-  const conversion = MOCK_LATEST_CONVERSION;
-  const historyData = MOCK_HISTORICAL_DATA;
+  const currentPair = {
+    from: "USD",
+    to: "BRL",
+    amount: 100
+  };
+  const conversionData = MOCK_CONVERSION_USD_BRL;
+  const historySeries = MOCK_HISTORICAL_SERIES;
 
-  const rates = historyData.map(item => item.rate);
-  const minRate = Math.min(...rates);
-  const maxRate = Math.max(...rates);
-  const avgRate = (rates.reduce((a, b) => a + b, 0) / rates.length).toFixed(4);
-  const firstRate = rates[0];
-  const lastRate = rates[rates.length - 1];
+  // Calculos analiticos derivados passados como props para os filhos
+  const ratesList = historySeries.map(item => item.rate);
+  const minRate = Math.min(...ratesList);
+  const maxRate = Math.max(...ratesList);
+  const avgRate = (ratesList.reduce((acc, curr) => acc + curr, 0) / ratesList.length).toFixed(4);
+  const firstRate = ratesList[0];
+  const lastRate = ratesList[ratesList.length - 1];
   const percentChange = (((lastRate - firstRate) / firstRate) * 100).toFixed(2);
 
-  const metrics = {
+  const derivedMetrics = {
     minRate,
     maxRate,
     avgRate,
@@ -36,7 +40,10 @@ export default function App() {
 
   return (
     <div className="app-container" data-theme={isDark ? 'dark' : 'light'}>
-      <Header isDark={isDark} statusText="Componentes Modularizados (Card 04)" />
+      <Header 
+        isDark={isDark} 
+        statusText="Fluxo de Dados com Props (Card 05)" 
+      />
 
       <main className="main-content">
         <section className="hero-section">
@@ -50,23 +57,23 @@ export default function App() {
 
         <div className="dashboard-grid">
           <ConverterCard 
-            amount={amount}
-            fromCurrency={fromCurrency}
-            toCurrency={toCurrency}
+            amount={currentPair.amount}
+            fromCurrency={currentPair.from}
+            toCurrency={currentPair.to}
             currencies={MOCK_CURRENCIES}
-            conversion={conversion}
+            conversion={conversionData}
             popularPairs={MOCK_POPULAR_PAIRS}
-            subtitle="Estrutura Componentizada (Card 04)"
+            subtitle="Demonstração de Props e Map (Card 05)"
           />
 
           <AnalyticsSection 
-            fromCurrency={fromCurrency}
-            toCurrency={toCurrency}
-            amount={amount}
-            timeframe="7D"
-            metrics={metrics}
-            historyData={historyData}
-            filteredHistoryData={historyData}
+            fromCurrency={currentPair.from}
+            toCurrency={currentPair.to}
+            amount={currentPair.amount}
+            timeframe="15D"
+            metrics={derivedMetrics}
+            historyData={historySeries}
+            filteredHistoryData={historySeries}
             searchTerm=""
             sortField="date"
             sortOrder="desc"
