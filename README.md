@@ -5,7 +5,7 @@
 
 ![React](https://img.shields.io/badge/React-19.3.1-61DAFB?style=for-the-badge&logo=react&logoColor=black)
 ![Vite](https://img.shields.io/badge/Vite-8.3.5-646CFF?style=for-the-badge&logo=vite&logoColor=white)
-![Figma](https://img.shields.io/badge/Figma-Design%20System-F24E1E?style=for-the-badge&logo=figma&logoColor=white)
+![Figma](https://www.figma.com/design/w0ePjIE5JBdAbL1tt0W4wL/Brand-Finace?node-id=0-1&p=f&t=Zqh1r6bwYSs40adH-0)
 ![Status](https://img.shields.io/badge/Status-Concluído%20&%20Apresentável-10B981?style=for-the-badge)
 
 <br/>
@@ -14,8 +14,8 @@
 
 <br/>
 
-[![Figma Prototype](https://img.shields.io/badge/🎨_Acessar_Protótipo-Figma_Design-F24E1E?style=for-the-badge)](https://www.figma.com/design/your-figma-project-link-here)
-*(Substitua o link acima pelo link de compartilhamento do seu arquivo no Figma)*
+[![Figma Prototype](https://www.figma.com/design/w0ePjIE5JBdAbL1tt0W4wL/Brand-Finace?node-id=0-1&p=f&t=Zqh1r6bwYSs40adH-0)
+
 
 </div>
 
@@ -25,7 +25,7 @@
 
 Todo o projeto foi estruturado seguindo padrões de design de ponta (*Glassmorphism*, paleta fintech escura e tipografia geométrica moderna):
 
-- 🔗 **Link do Protótipo no Figma:** [Clique aqui para abrir o Figma do Projeto](https://www.figma.com/design/your-figma-project-link-here)
+- 🔗 **Link do Protótipo no Figma:** [Clique aqui para abrir o Figma do Projeto](https://www.figma.com/design/w0ePjIE5JBdAbL1tt0W4wL/Brand-Finace?node-id=0-1&p=f&t=Zqh1r6bwYSs40adH-0)
 - 📐 **Guia Completo de Criação para Figma / pen.dev:** Acesse a documentação de tokens, medidas, cores e fontes em [`docs/FIGMA_GUIDE.md`](./docs/FIGMA_GUIDE.md).
 
 ---
