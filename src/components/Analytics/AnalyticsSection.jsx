@@ -28,6 +28,15 @@ export default function AnalyticsSection({
   onExportCsv,
   isLoading = false
 }) {
+  const timeframeDescriptions = {
+    '7D': 'Acompanhamento dos últimos 7 dias',
+    '15D': 'Acompanhamento dos últimos 15 dias',
+    '30D': 'Acompanhamento do último mês (30 dias)',
+    '90D': 'Acompanhamento do último trimestre (90 dias)',
+    '1A': 'Acompanhamento do último ano',
+    '5A': 'Acompanhamento histórico dos últimos 5 anos'
+  };
+
   return (
     <div className="glass-panel analytics-card">
       <div className="analytics-header">
@@ -37,7 +46,7 @@ export default function AnalyticsSection({
             Evolução Histórica ({fromCurrency} / {toCurrency})
           </h2>
           <p style={{ fontSize: '0.8125rem', color: 'var(--text-muted)' }}>
-            Acompanhamento de taxa de câmbio dos últimos dias
+            {timeframeDescriptions[timeframe] || 'Acompanhamento de taxa de câmbio'}
           </p>
         </div>
 

@@ -1,5 +1,5 @@
 import React from 'react';
-import { Coins, ArrowRightLeft } from 'lucide-react';
+import { Coins, ArrowRightLeft, Star } from 'lucide-react';
 import AmountInput from './AmountInput';
 import CurrencySelect from './CurrencySelect';
 import ConversionResult from './ConversionResult';
@@ -21,19 +21,43 @@ export default function ConverterCard({
   recents = [],
   favorites = [],
   onToggleFavorite,
+  favoriteCurrencies = ['USD', 'BRL', 'EUR'],
+  onToggleCurrencyFavorite,
   isLoading = false,
-  subtitle = "Taxas de Câmbio"
+  subtitle = "Taxas de Câmbio Comerciais"
 }) {
   return (
     <div className="glass-panel converter-card">
       <div className="card-header">
-        <h2 className="card-title">
-          <Coins size={20} color="var(--primary)" />
-          Conversor de Câmbio
-        </h2>
-        <span style={{ fontSize: '0.75rem', color: 'var(--text-dim)' }}>
-          {subtitle}
-        </span>
+        <div>
+          <h2 className="card-title">
+            <Coins size={20} color="var(--primary)" />
+            Conversor Oficial Brand Finance
+          </h2>
+          <span style={{ fontSize: '0.75rem', color: 'var(--text-dim)' }}>
+            {subtitle}
+          </span>
+        </div>
+
+        {/* Atalhos para moedas favoritas rápidas */}
+        {favoriteCurrencies && favoriteCurrencies.length > 0 && (
+          <div className="favorite-currencies-bar">
+            <span className="fav-label"><Star size={11} fill="var(--accent-amber)" color="var(--accent-amber)" /> Favoritas:</span>
+            <div className="fav-chips-group">
+              {favoriteCurrencies.map(curr => (
+                <button
+                  key={curr}
+                  type="button"
+                  className={`fav-chip ${toCurrency === curr ? 'active' : ''}`}
+                  onClick={() => onToCurrencyChange({ target: { value: curr } })}
+                  title={`Converter para ${curr}`}
+                >
+                  {curr}
+                </button>
+              ))}
+            </div>
+          </div>
+        )}
       </div>
 
       <AmountInput 
@@ -44,10 +68,12 @@ export default function ConverterCard({
 
       <div className="currency-pair-row">
         <CurrencySelect 
-          label="De" 
+          label="DE (ORIGEM)" 
           value={fromCurrency} 
           onChange={onFromCurrencyChange} 
-          currencies={currencies} 
+          currencies={currencies}
+          isFavorite={favoriteCurrencies.includes(fromCurrency)}
+          onToggleFavorite={onToggleCurrencyFavorite}
         />
 
         <button 
@@ -61,10 +87,12 @@ export default function ConverterCard({
         </button>
 
         <CurrencySelect 
-          label="Para" 
+          label="PARA (DESTINO)" 
           value={toCurrency} 
           onChange={onToCurrencyChange} 
-          currencies={currencies} 
+          currencies={currencies}
+          isFavorite={favoriteCurrencies.includes(toCurrency)}
+          onToggleFavorite={onToggleCurrencyFavorite}
         />
       </div>
 

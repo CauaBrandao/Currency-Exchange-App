@@ -183,3 +183,113 @@ button, input, select {
 .spin-anim {
   animation: spin 1s linear infinite;
 }
+
+
+/* ==========================================================================
+   Brand Finance - Novos Temas & Paletas
+   ========================================================================== */
+
+/* Tema Nomad Gold */
+html[data-theme="nomad"],
+[data-theme="nomad"] {
+  --bg-app: #0b0f14;
+  --bg-gradient: radial-gradient(ellipse at 50% -10%, #3f3612 0%, #0b0f14 65%);
+  --surface-card: rgba(18, 23, 29, 0.92);
+  --surface-card-hover: rgba(28, 36, 45, 0.96);
+  --surface-inner: #131922;
+  --surface-glass: rgba(234, 179, 8, 0.05);
+
+  --border-subtle: rgba(234, 179, 8, 0.12);
+  --border-card: rgba(234, 179, 8, 0.22);
+  --border-focus: #eab308;
+
+  --text-main: #fefce8;
+  --text-muted: #d4d4d8;
+  --text-dim: #a1a1aa;
+
+  --primary: #eab308;
+  --primary-hover: #ca8a04;
+  --primary-light: rgba(234, 179, 8, 0.14);
+
+  --accent-cyan: #38bdf8;
+  --accent-green: #22c55e;
+  --accent-green-bg: rgba(34, 197, 94, 0.14);
+  --accent-red: #ef4444;
+  --accent-red-bg: rgba(239, 68, 68, 0.14);
+  --accent-amber: #eab308;
+  --accent-amber-bg: rgba(234, 179, 8, 0.14);
+  --accent-violet: #a855f7;
+  --accent-violet-bg: rgba(168, 85, 247, 0.14);
+
+  --shadow-glow: 0 0 30px rgba(234, 179, 8, 0.22);
+}
+
+/* Tema Emerald Pro */
+html[data-theme="emerald"],
+[data-theme="emerald"] {
+  --bg-app: #04160f;
+  --bg-gradient: radial-gradient(ellipse at 50% -10%, #064e3b 0%, #04160f 65%);
+  --surface-card: rgba(6, 30, 21, 0.92);
+  --surface-card-hover: rgba(10, 45, 32, 0.96);
+  --surface-inner: #07261a;
+  --surface-glass: rgba(16, 185, 129, 0.05);
+
+  --border-subtle: rgba(16, 185, 129, 0.15);
+  --border-card: rgba(16, 185, 129, 0.25);
+  --border-focus: #10b981;
+
+  --text-main: #ecfdf5;
+  --text-muted: #a7f3d0;
+  --text-dim: #6ee7b7;
+
+  --primary: #10b981;
+  --primary-hover: #059669;
+  --primary-light: rgba(16, 185, 129, 0.15);
+
+  --accent-cyan: #06b6d4;
+  --accent-green: #10b981;
+  --accent-green-bg: rgba(16, 185, 129, 0.15);
+  --accent-red: #f43f5e;
+  --accent-red-bg: rgba(244, 63, 94, 0.15);
+  --accent-amber: #f59e0b;
+  --accent-amber-bg: rgba(245, 158, 11, 0.15);
+  --accent-violet: #818cf8;
+  --accent-violet-bg: rgba(129, 140, 248, 0.15);
+
+  --shadow-glow: 0 0 30px rgba(16, 185, 129, 0.25);
+}
+
+/* Tema Cyberpunk Violet */
+html[data-theme="cyber"],
+[data-theme="cyber"] {
+  --bg-app: #0d091a;
+  --bg-gradient: radial-gradient(ellipse at 50% -10%, #581c87 0%, #0d091a 65%);
+  --surface-card: rgba(23, 15, 42, 0.92);
+  --surface-card-hover: rgba(36, 24, 65, 0.96);
+  --surface-inner: #1a1033;
+  --surface-glass: rgba(192, 132, 252, 0.05);
+
+  --border-subtle: rgba(192, 132, 252, 0.15);
+  --border-card: rgba(192, 132, 252, 0.25);
+  --border-focus: #c084fc;
+
+  --text-main: #faf5ff;
+  --text-muted: #e9d5ff;
+  --text-dim: #c084fc;
+
+  --primary: #c084fc;
+  --primary-hover: #a855f7;
+  --primary-light: rgba(192, 132, 252, 0.15);
+
+  --accent-cyan: #38bdf8;
+  --accent-green: #34d399;
+  --accent-green-bg: rgba(52, 211, 153, 0.15);
+  --accent-red: #fb7185;
+  --accent-red-bg: rgba(251, 113, 133, 0.15);
+  --accent-amber: #fbbf24;
+  --accent-amber-bg: rgba(251, 191, 36, 0.15);
+  --accent-violet: #c084fc;
+  --accent-violet-bg: rgba(192, 132, 252, 0.15);
+
+  --shadow-glow: 0 0 30px rgba(192, 132, 252, 0.25);
+}

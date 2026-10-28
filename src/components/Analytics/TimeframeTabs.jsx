@@ -1,7 +1,7 @@
 import React from 'react';
 
 export default function TimeframeTabs({ 
-  timeframes = ['7D', '15D', '30D', '90D', '1A'], 
+  timeframes = ['7D', '15D', '30D', '90D', '1A', '5A'], 
   selectedTimeframe, 
   onSelectTimeframe 
 }) {

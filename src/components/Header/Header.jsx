@@ -1,57 +1,103 @@
-import React, { useState, useEffect } from 'react';
-import { Coins, Sun, Moon, Wifi, WifiOff } from 'lucide-react';
+import React from 'react';
+import { Wifi, WifiOff, User, CreditCard, Sparkles } from 'lucide-react';
+import BrandLogo from './BrandLogo';
+import CurrencyClockSelector from './CurrencyClockSelector';
+import ThemePaletteSelector from './ThemePaletteSelector';
 
-function LiveClock() {
-  const [time, setTime] = useState(new Date());
-
-  useEffect(() => {
-    const id = setInterval(() => setTime(new Date()), 1000);
-    return () => clearInterval(id);
-  }, []);
-
-  return (
-    <span className="live-clock" aria-label="Horário atual">
-      {time.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit', second: '2-digit' })}
-    </span>
-  );
-}
-
-export default function Header({ isDark = true, onToggleTheme, statusText = 'API Frankfurter Conectada', apiOnline = true }) {
+export default function Header({
+  theme = 'dark',
+  onSelectTheme,
+  statusText = 'API Frankfurter Conectada',
+  apiOnline = true,
+  currencies = {},
+  selectedClocks = ['BRL', 'USD', 'EUR'],
+  onToggleClock,
+  onOpenAuth,
+  onNavigateHome,
+  onNavigateApp,
+  currentView = 'app'
+}) {
   return (
     <header className="app-header">
       <div className="header-inner">
-        <div className="brand-wrapper">
-          <div className="brand-icon">
-            <Coins size={22} />
-          </div>
+        {/* Brand Logo & Name */}
+        <div className="brand-wrapper" onClick={onNavigateHome} style={{ cursor: 'pointer' }}>
+          <BrandLogo size={40} />
           <div>
             <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-              <span className="brand-title">Currency Exchange</span>
-              <span className="brand-badge">LIVE</span>
+              <span className="brand-title">Brand Finance</span>
+              <span className="brand-badge">GLOBAL</span>
             </div>
-            <div style={{ fontSize: '0.6875rem', color: 'var(--text-dim)', marginTop: '0.1rem', fontFamily: 'JetBrains Mono, monospace' }}>
-              <LiveClock />
+            <div className="brand-tagline">
+              Câmbio Comercial &amp; Soluções Financeiras
             </div>
           </div>
         </div>
 
+        {/* Global Navigation Link (Landing vs App) */}
+        <div className="header-center-nav">
+          <button
+            className={`nav-link-btn ${currentView === 'landing' ? 'active' : ''}`}
+            onClick={onNavigateHome}
+          >
+            Início
+          </button>
+          <button
+            className={`nav-link-btn ${currentView === 'app' ? 'active' : ''}`}
+            onClick={onNavigateApp}
+          >
+            Plataforma &amp; Câmbio
+          </button>
+        </div>
+
+        {/* Header Right Actions: Login, Pagamento, Temas, Status */}
         <div className="header-actions">
+          {/* Status API */}
           <div className={`status-indicator ${apiOnline ? '' : 'status-indicator--offline'}`}>
             {apiOnline
               ? <Wifi size={13} color="var(--accent-green)" />
               : <WifiOff size={13} color="var(--accent-red)" />
             }
             <span className={`status-dot ${apiOnline ? '' : 'status-dot--offline'}`} />
-            <span>{statusText}</span>
+            <span className="status-label-text">{statusText}</span>
           </div>
+
+          {/* Seleção de Paleta de Temas Modernos */}
+          <ThemePaletteSelector
+            currentTheme={theme}
+            onSelectTheme={onSelectTheme}
+          />
+
+          {/* Botão de Pagamento / Assinatura */}
           <button
-            className="theme-btn"
-            title={isDark ? 'Mudar para tema claro' : 'Mudar para tema escuro'}
-            aria-label="Alternar tema"
-            onClick={onToggleTheme}
+            className="header-payment-btn"
+            onClick={() => onOpenAuth('payment')}
+            title="Planos e Pagamento Internacional Brand Finance"
           >
-            {isDark ? <Sun size={18} /> : <Moon size={18} />}
+            <CreditCard size={15} />
+            <span>Planos &amp; Pagamento</span>
           </button>
+
+          {/* Botão de Login / Conta */}
+          <button
+            className="header-login-btn"
+            onClick={() => onOpenAuth('login')}
+            title="Acessar sua conta"
+          >
+            <User size={15} />
+            <span>Entrar</span>
+          </button>
+        </div>
+      </div>
+
+      {/* Relógios Mundiais em tempo real logo abaixo do Header */}
+      <div className="header-clocks-wrapper">
+        <div className="header-clocks-inner">
+          <CurrencyClockSelector
+            currencies={currencies}
+            selectedCurrencies={selectedClocks}
+            onToggleCurrency={onToggleClock}
+          />
         </div>
       </div>
     </header>

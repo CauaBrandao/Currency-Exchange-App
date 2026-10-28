@@ -27,6 +27,9 @@ export function useHistoricalRates(fromCurrency, toCurrency, timeframe = '15D') 
       case '1A':
         start.setFullYear(end.getFullYear() - 1);
         break;
+      case '5A':
+        start.setFullYear(end.getFullYear() - 5);
+        break;
       default:
         start.setDate(end.getDate() - 15);
     }
@@ -52,22 +55,36 @@ export function useHistoricalRates(fromCurrency, toCurrency, timeframe = '15D') 
 
     try {
       const data = await getHistoricalRates(fromCurrency, toCurrency, startDate, endDate);
-      
-      if (data && data.rates) {
+
+      if (data && data.rates && Object.keys(data.rates).length > 0) {
         // Converte objeto { "YYYY-MM-DD": { "BRL": 5.58 } } em array [{ date, rate }]
-        const formatted = Object.entries(data.rates).map(([date, rateObj]) => ({
+        let formatted = Object.entries(data.rates).map(([date, rateObj]) => ({
           date,
           rate: rateObj[toCurrency] || 1
         })).sort((a, b) => a.date.localeCompare(b.date));
 
+        // Amostragem inteligente para séries longas (ex: 5A traz ~1300 pontos, reduzimos para ~120 pontos sem distorcer)
+        if (formatted.length > 180) {
+          const step = Math.ceil(formatted.length / 120);
+          const sampled = [];
+          for (let i = 0; i < formatted.length; i += step) {
+            sampled.push(formatted[i]);
+          }
+          if (sampled[sampled.length - 1]?.date !== formatted[formatted.length - 1]?.date) {
+            sampled.push(formatted[formatted.length - 1]);
+          }
+          formatted = sampled;
+        }
+
         setHistoryData(formatted);
+        setError(null);
       } else {
         setHistoryData([]);
       }
     } catch (err) {
-      console.error("Erro ao carregar série histórica:", err);
+      console.warn("Erro ao carregar série histórica:", err);
+      // Não quebra a tela com mensagem de erro fatal se falhar o histórico, mantém dados anteriores ou limpa suavemente
       setError(err.message || "Erro ao consultar histórico.");
-      setHistoryData([]);
     } finally {
       setIsLoading(false);
     }
